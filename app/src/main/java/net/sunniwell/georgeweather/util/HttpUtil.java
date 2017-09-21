@@ -19,9 +19,7 @@ public class HttpUtil {
     public static void sendRequest(String requestUrl, Callback callback) {
         Log.d(TAG, "sendRequest: requestUrl:" + requestUrl);
         OkHttpClient client = new OkHttpClient();
-        Request request = new Request.Builder()
-                .url(requestUrl)
-                .build();
+        Request request = new Request.Builder().url(requestUrl).build();
         client.newCall(request).enqueue(callback);
     }
 }
