@@ -3,8 +3,8 @@
     <dbname value="george_weather" />
     <version value="1" />
     <list>
-        <mapping value="net.sunniwell.georgeweather.db.Province" />
-        <mapping value="net.sunniwell.georgeweather.db.City" />
-        <mapping value="net.sunniwell.georgeweather.db.County" />
+        <mapping class="net.sunniwell.georgeweather.db.Province" />
+        <mapping class="net.sunniwell.georgeweather.db.City" />
+        <mapping class="net.sunniwell.georgeweather.db.County" />
     </list>
 </litepal>

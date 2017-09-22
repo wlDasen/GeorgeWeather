@@ -1,6 +1,7 @@
 package net.sunniwell.georgeweather;
 
 import android.app.ProgressDialog;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -23,6 +24,7 @@ import net.sunniwell.georgeweather.util.Utility;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.litepal.crud.DataSupport;
+import org.litepal.tablemanager.Connector;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -101,7 +103,7 @@ public class ChooseAreaFragment extends Fragment {
         if (provinceList.size() > 0) {
             dataList.clear();
             for(Province province : provinceList) {
-                dataList.add(province.getProvinceName());
+                dataList.add(province.getName());
             }
             arrayAdapter.notifyDataSetChanged();
             areaList.setSelection(0);
@@ -120,8 +122,13 @@ public class ChooseAreaFragment extends Fragment {
         Callback callback = new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                closeProgressDialog();
-                Toast.makeText(getContext(), "加载数据失败", Toast.LENGTH_SHORT).show();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        Toast.makeText(getContext(), "加载数据失败", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
 
             @Override
