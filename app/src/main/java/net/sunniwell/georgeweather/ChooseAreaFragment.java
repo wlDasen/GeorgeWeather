@@ -1,8 +1,11 @@
 package net.sunniwell.georgeweather;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -107,14 +110,22 @@ public class ChooseAreaFragment extends Fragment {
                 Log.d(TAG, "onItemClick: position:" + position + "id:" + id);
                 if (currentLevel == PROVINCE_LEVEL) {
                     selectedProvince = provinceList.get(position);
-                    Log.d(TAG, "onItemClick: id:" + selectedProvince.getId() + ",code:" + selectedProvince.getPrinceCode());
+//                    Log.d(TAG, "onItemClick: id:" + selectedProvince.getId() + ",code:" + selectedProvince.getPrinceCode());
                     queryCities();
                 } else if(currentLevel == CITY_LEVEL) {
                     selectedCity = cityList.get(position);
-                    Log.d(TAG, "onItemClick: id:" + selectedCity.getCityCode() + ",name:" + selectedCity.getName());
+//                    Log.d(TAG, "onItemClick: id:" + selectedCity.getCityCode() + ",name:" + selectedCity.getName());
                     queryCounties();
                 } else if(currentLevel == COUNTY_LEVEL) {
-
+                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
+                    SharedPreferences.Editor editor = prefs.edit();
+                    editor.putString("weather", "alreadyConfigured");
+                    editor.commit();
+                    Intent intent = new Intent(getContext(), WeatherActivity.class);
+                    intent.putExtra("weather_id", countyList.get(position).getName());
+                    Log.d(TAG, "onItemClick: countyName:" + countyList.get(position).getName());
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -144,8 +155,8 @@ public class ChooseAreaFragment extends Fragment {
             dataList.clear();
             for(Province province : provinceList) {
                 dataList.add(province.getName());
-                Log.d(TAG, "queryProvinces: id:" + province.getId() + ",provinceCode:" + province.getPrinceCode()
-                    + ",name:" + province.getName());
+//                Log.d(TAG, "queryProvinces: id:" + province.getId() + ",provinceCode:" + province.getPrinceCode()
+//                    + ",name:" + province.getName());
             }
             arrayAdapter.notifyDataSetChanged();
             areaList.setSelection(0);
@@ -168,8 +179,8 @@ public class ChooseAreaFragment extends Fragment {
             dataList.clear();
             for(City city : cityList) {
                 dataList.add(city.getName());
-                Log.d(TAG, "queryCities: id:" + city.getId() + ",cityCode:" + city.getCityCode()
-                    + ",name:" + city.getName());
+//                Log.d(TAG, "queryCities: id:" + city.getId() + ",cityCode:" + city.getCityCode()
+//                    + ",name:" + city.getName());
             }
             arrayAdapter.notifyDataSetChanged();
             areaList.setSelection(0);
@@ -192,8 +203,8 @@ public class ChooseAreaFragment extends Fragment {
             dataList.clear();
             for(County county : countyList) {
                 dataList.add(county.getName());
-                Log.d(TAG, "queryCounties: id:" + county.getId() + ",countyCode:" + county.getCountyCode()
-                    + ",name:" + county.getName() + ",weather_id:" + county.getWeather_id());
+//                Log.d(TAG, "queryCounties: id:" + county.getId() + ",countyCode:" + county.getCountyCode()
+//                    + ",name:" + county.getName() + ",weather_id:" + county.getWeather_id());
             }
             arrayAdapter.notifyDataSetChanged();
             areaList.setSelection(0);

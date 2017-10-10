@@ -2,9 +2,12 @@ package net.sunniwell.georgeweather.util;
 
 import android.util.Log;
 
+import com.google.gson.Gson;
+
 import net.sunniwell.georgeweather.db.City;
 import net.sunniwell.georgeweather.db.County;
 import net.sunniwell.georgeweather.db.Province;
+import net.sunniwell.georgeweather.gson.Weather;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,6 +18,22 @@ import org.json.JSONObject;
 
 public class Utility {
     public static final String TAG = "jpd-Utility";
+
+    public static Weather handleWeatherResponse(String response) {
+        try {
+            Log.d(TAG, "handleWeatherResponse: response:" + response);
+            JSONObject jsonObject = new JSONObject(response);
+            Log.d(TAG, "handleWeatherResponse: length:" + jsonObject.length());
+            JSONArray jsonArray = jsonObject.getJSONArray("HeWeather5");
+            Log.d(TAG, "handleWeatherResponse: " + jsonArray.length());
+            String weatherContent = jsonArray.getJSONObject(0).toString();
+            Log.d(TAG, "handleWeatherResponse: " + weatherContent);
+            return new Gson().fromJson(weatherContent, Weather.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     
     /**
      * 将从服务器请求的省份数据保存到数据库

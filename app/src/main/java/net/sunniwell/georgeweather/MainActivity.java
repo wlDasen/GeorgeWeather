@@ -1,5 +1,6 @@
 package net.sunniwell.georgeweather;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
 import android.preference.PreferenceManager;
@@ -20,8 +21,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         SQLiteDatabase database = Connector.getDatabase();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
-        if(pref.getString("alreadyChooseCity", null) != null) {
+        if(pref.getString("weather", null) != null) {
             Log.d(TAG, "onCreate: alreadyChooseCity");
+            Intent intent = new Intent(this, WeatherActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 }
