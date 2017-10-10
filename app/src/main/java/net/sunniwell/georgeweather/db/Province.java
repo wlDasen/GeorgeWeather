@@ -9,6 +9,15 @@ import org.litepal.crud.DataSupport;
 public class Province extends DataSupport {
     private int id;
     private String name;
+    private int princeCode;
+
+    public int getPrinceCode() {
+        return princeCode;
+    }
+
+    public void setPrinceCode(int princeCode) {
+        this.princeCode = princeCode;
+    }
 
     public int getId() {
         return id;

@@ -17,6 +17,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import net.sunniwell.georgeweather.db.City;
+import net.sunniwell.georgeweather.db.County;
 import net.sunniwell.georgeweather.db.Province;
 import net.sunniwell.georgeweather.util.HttpUtil;
 import net.sunniwell.georgeweather.util.Utility;
@@ -43,12 +45,27 @@ import okhttp3.Response;
  */
 
 public class ChooseAreaFragment extends Fragment {
+    static final int PROVINCE_LEVEL = 1;
+    static final int CITY_LEVEL = 2;
+    static final int COUNTY_LEVEL = 3;
     public static final String TAG = "jpd-ChooseAreaFragment";
     private Button backBtn;
     private TextView barTitle;
     ProgressDialog progress;
     private ListView areaList;
     private ArrayAdapter<String> arrayAdapter;
+    /**
+     * 选中的城市
+     */
+    private City selectedCity;
+    /**
+     * 选中的省份
+     */
+    private Province selectedProvince;
+    /**
+     * 当前所处的List层级
+     */
+    private int currentLevel;
     /**
      * listView数据
      */
@@ -57,6 +74,14 @@ public class ChooseAreaFragment extends Fragment {
      * Province数据
      */
     private List<Province> provinceList;
+    /**
+     * City数据
+     */
+    private List<City> cityList;
+    /**
+     * County数据
+     */
+    private List<County> countyList;
 
     @Nullable
     @Override
@@ -80,20 +105,35 @@ public class ChooseAreaFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Log.d(TAG, "onItemClick: position:" + position + "id:" + id);
+                if (currentLevel == PROVINCE_LEVEL) {
+                    selectedProvince = provinceList.get(position);
+                    Log.d(TAG, "onItemClick: id:" + selectedProvince.getId() + ",code:" + selectedProvince.getPrinceCode());
+                    queryCities();
+                } else if(currentLevel == CITY_LEVEL) {
+                    selectedCity = cityList.get(position);
+                    Log.d(TAG, "onItemClick: id:" + selectedCity.getCityCode() + ",name:" + selectedCity.getName());
+                    queryCounties();
+                } else if(currentLevel == COUNTY_LEVEL) {
 
+                }
             }
         });
         backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.d(TAG, "onBackButtonClick: ");
+                if (currentLevel == COUNTY_LEVEL) {
+                    queryCities();
+                } else if(currentLevel == CITY_LEVEL) {
+                    queryProvinces();
+                }
             }
         });
         queryProvinces();
     }
 
     /**
-     * 查询全国所有的省份，优先从数据库查询，如果没有查询到再去服务器上查询；
+     * 查询全国所有的省份，优先从数据库查询，如果没有查询到再去服务器上查询
      */
     private void queryProvinces() {
         Log.d(TAG, "queryProvinces: ");
@@ -104,12 +144,63 @@ public class ChooseAreaFragment extends Fragment {
             dataList.clear();
             for(Province province : provinceList) {
                 dataList.add(province.getName());
+                Log.d(TAG, "queryProvinces: id:" + province.getId() + ",provinceCode:" + province.getPrinceCode()
+                    + ",name:" + province.getName());
             }
             arrayAdapter.notifyDataSetChanged();
             areaList.setSelection(0);
+            currentLevel = PROVINCE_LEVEL;
         } else {
             String url = "http://guolin.tech/api/china";
             queryFromServer(url, "province");
+        }
+    }
+
+    /**
+     * 查询国家对应的所有城市，优先从数据查询，如果没有查询到再去服务器上查询
+     */
+    private void queryCities() {
+        Log.d(TAG, "queryCities: ");
+        backBtn.setVisibility(View.VISIBLE);
+        barTitle.setText(selectedProvince.getName());
+        cityList = DataSupport.where("provinceid = ?", String.valueOf(selectedProvince.getPrinceCode())).find(City.class);
+        if (cityList.size() > 0) {
+            dataList.clear();
+            for(City city : cityList) {
+                dataList.add(city.getName());
+                Log.d(TAG, "queryCities: id:" + city.getId() + ",cityCode:" + city.getCityCode()
+                    + ",name:" + city.getName());
+            }
+            arrayAdapter.notifyDataSetChanged();
+            areaList.setSelection(0);
+            currentLevel = CITY_LEVEL;
+        } else {
+            String url = "http://guolin.tech/api/china/" + selectedProvince.getPrinceCode();
+            queryFromServer(url, "city");
+        }
+    }
+
+    /**
+     * 查询城市对应所有的县，优先从数据查询，如果没有查询到再去服务器上查询
+     */
+    private void queryCounties() {
+        Log.d(TAG, "queryCounties: ");
+        backBtn.setVisibility(View.VISIBLE);
+        barTitle.setText(selectedCity.getName());
+        countyList = DataSupport.where("cityid = ?", String.valueOf(selectedCity.getCityCode())).find(County.class);
+        if (countyList.size() > 0) {
+            dataList.clear();
+            for(County county : countyList) {
+                dataList.add(county.getName());
+                Log.d(TAG, "queryCounties: id:" + county.getId() + ",countyCode:" + county.getCountyCode()
+                    + ",name:" + county.getName() + ",weather_id:" + county.getWeather_id());
+            }
+            arrayAdapter.notifyDataSetChanged();
+            areaList.setSelection(0);
+            currentLevel = COUNTY_LEVEL;
+        } else {
+            String url = "http://guolin.tech/api/china/" + selectedProvince.getPrinceCode() + "/" + selectedCity.getCityCode();
+            queryFromServer(url, "county");
         }
     }
 
@@ -138,9 +229,9 @@ public class ChooseAreaFragment extends Fragment {
                 if ("province".equalsIgnoreCase(type)) {
                     result = Utility.handleProvinceData(serverData);
                 } else if ("city".equalsIgnoreCase(type)) {
-                    result = Utility.handCityData(serverData);
+                    result = Utility.handCityData(serverData, selectedProvince.getPrinceCode());
                 } else if ("county".equalsIgnoreCase(type)) {
-                    result = Utility.handCountyData(serverData);
+                    result = Utility.handCountyData(serverData, selectedCity.getCityCode());
                 }
                 if (result) {
                     getActivity().runOnUiThread(new Runnable() {
@@ -149,6 +240,12 @@ public class ChooseAreaFragment extends Fragment {
                             closeProgressDialog();
                             if ("province".equalsIgnoreCase(type)) {
                                 queryProvinces();
+                            }
+                            if("city".equalsIgnoreCase(type)) {
+                                queryCities();
+                            }
+                            if("county".equalsIgnoreCase(type)) {
+                                queryCounties();
                             }
                         }
                     });
