@@ -21,6 +21,7 @@ import net.sunniwell.georgeweather.util.Utility;
 
 import org.w3c.dom.Text;
 
+import java.io.File;
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -50,12 +51,14 @@ public class WeatherActivity extends AppCompatActivity {
         String weatherId = intent.getStringExtra("weather_id");
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherString = prefs.getString("weather", null);
-//        if (weatherString != null) {
-//            Weather weather = Utility.handleWeatherResponse(weatherString);
-//            showWeatherInfo(weather);
-//        } else {
+        if (weatherString != null) {
+            Log.d(TAG, "onCreate: use cache.....");
+            Weather weather = Utility.handleWeatherResponse(weatherString);
+            showWeatherInfo(weather);
+        } else {
+            Log.d(TAG, "onCreate: by internet...");
             requestWeather(weatherId);
-//        }
+        }
     }
 
     private void obtainWidgetInstance() {
@@ -103,6 +106,7 @@ public class WeatherActivity extends AppCompatActivity {
                             Log.d(TAG, "run: ........");
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
                             editor.putString("weather", responseContent);
+                            Log.d(TAG, "run: responseContent:" + responseContent);
                             editor.apply();
                             showWeatherInfo(weather);
                         } else {

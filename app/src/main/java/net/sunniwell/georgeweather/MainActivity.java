@@ -12,13 +12,28 @@ import org.litepal.LitePal;
 import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
+import java.io.File;
+
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "jpd-AppCompatActivity";
-
+    private void fileTest() {
+        File file = new File("/data/data/net.sunniwell.georgeweather/shared_prefs");
+        if (file.exists()) {
+            Log.d(TAG, "fileTest: file exist..");
+            File[] files = file.listFiles();
+            for(File f : files) {
+                Log.d(TAG, "fileTest: name:" + f.getName());
+            }
+        } else {
+            Log.d(TAG, "fileTest: not exist.");
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Log.d(TAG, "onCreate: ");
+//        fileTest();
         SQLiteDatabase database = Connector.getDatabase();
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(this);
         if(pref.getString("weather", null) != null) {

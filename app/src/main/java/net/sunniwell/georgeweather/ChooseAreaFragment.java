@@ -117,10 +117,6 @@ public class ChooseAreaFragment extends Fragment {
 //                    Log.d(TAG, "onItemClick: id:" + selectedCity.getCityCode() + ",name:" + selectedCity.getName());
                     queryCounties();
                 } else if(currentLevel == COUNTY_LEVEL) {
-                    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getContext());
-                    SharedPreferences.Editor editor = prefs.edit();
-                    editor.putString("weather", "alreadyConfigured");
-                    editor.commit();
                     Intent intent = new Intent(getContext(), WeatherActivity.class);
                     intent.putExtra("weather_id", countyList.get(position).getName());
                     Log.d(TAG, "onItemClick: countyName:" + countyList.get(position).getName());
@@ -270,7 +266,9 @@ public class ChooseAreaFragment extends Fragment {
      * 展示请求数据的缓冲图标
      */
     private void showProgressDialog() {
+        Log.d(TAG, "showProgressDialog: ");
         if (progress == null) {
+            Log.d(TAG, "showProgressDialog: null");
             progress = new ProgressDialog(getContext());
             progress.setMessage("请求数据中....");
             progress.setCanceledOnTouchOutside(false);
@@ -282,8 +280,11 @@ public class ChooseAreaFragment extends Fragment {
      * 关闭请求数据的缓冲图标
      */
     private void closeProgressDialog() {
+        Log.d(TAG, "closeProgressDialog: ");
         if(progress != null) {
+            Log.d(TAG, "closeProgressDialog: not null");
             progress.dismiss();
+            progress = null;
         }
     }
 }
