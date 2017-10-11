@@ -5,12 +5,15 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -47,7 +50,10 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView car;
     private TextView sport;
     private ImageView bingPicImg;
-    private SwipeRefreshLayout swipe;
+    public SwipeRefreshLayout swipe;
+    public DrawerLayout drawer;
+    private Button navBtn;
+    private String weatherId;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +61,6 @@ public class WeatherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         obtainWidgetInstance();
-        final String weatherId;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String bingPic = prefs.getString("bing_pic", null);
         if (bingPic != null) {
@@ -82,6 +87,12 @@ public class WeatherActivity extends AppCompatActivity {
             @Override
             public void onRefresh() {
                 requestWeather(weatherId);
+            }
+        });
+        navBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                drawer.openDrawer(GravityCompat.START);
             }
         });
     }
@@ -113,6 +124,8 @@ public class WeatherActivity extends AppCompatActivity {
         sport = (TextView)findViewById(R.id.sport_text);
         bingPicImg = (ImageView)findViewById(R.id.bing_pic);
         swipe = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
+        drawer = (DrawerLayout)findViewById(R.id.drawer_layout);
+        navBtn = (Button)findViewById(R.id.nav_button);
     }
 
     @Override
@@ -121,7 +134,7 @@ public class WeatherActivity extends AppCompatActivity {
         Log.d(TAG, "onResume: ");
     }
 
-    private void requestWeather(final String weatherId) {
+    public void requestWeather(final String weatherId) {
         String requestUrl = "https://free-api.heweather.com/v5/weather?city=" + weatherId + "&key=657f9365f0cd4daf85545a4a91c05aa8";
         HttpUtil.sendRequest(requestUrl, new Callback() {
             @Override
@@ -163,13 +176,9 @@ public class WeatherActivity extends AppCompatActivity {
     }
 
     private void showWeatherInfo(Weather weather) {
-        if(weather.basic == null) {
-            Log.d(TAG, "showWeatherInfo: null");
-        } else {
-            Log.d(TAG, "showWeatherInfo: not null");
-        }
         Log.d(TAG, "showWeatherInfo: basic:" + weather.basic);
         String cityName = weather.basic.city;
+        weatherId = cityName;
         String updateTime = weather.basic.update.loc.split(" ")[1];
         String degree = weather.now.tmp + "℃";
         String weatherText = weather.now.cond.txt;
