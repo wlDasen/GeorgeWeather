@@ -19,6 +19,8 @@ import net.sunniwell.georgeweather.gson.Weather;
 import net.sunniwell.georgeweather.util.HttpUtil;
 import net.sunniwell.georgeweather.util.Utility;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 
 import okhttp3.Call;
@@ -32,6 +34,11 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView temperature;
     private TextView weatherInfo;
     private LinearLayout forecast;
+    private TextView aqi;
+    private TextView pm25;
+    private TextView comf;
+    private TextView car;
+    private TextView sport;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +64,11 @@ public class WeatherActivity extends AppCompatActivity {
         temperature = (TextView)findViewById(R.id.temperature);
         weatherInfo = (TextView)findViewById(R.id.weather);
         forecast = (LinearLayout)findViewById(R.id.forecast);
+        aqi = (TextView)findViewById(R.id.aqi_text);
+        pm25 = (TextView)findViewById(R.id.pm25_text);
+        comf = (TextView)findViewById(R.id.comf_text);
+        car = (TextView)findViewById(R.id.car_text);
+        sport = (TextView)findViewById(R.id.sport_text);
     }
 
     @Override
@@ -131,6 +143,18 @@ public class WeatherActivity extends AppCompatActivity {
             max.setText(df.temperature.max);
             min.setText(df.temperature.min);
             forecast.addView(view);
+        }
+        if(weather.aqi != null ) {
+            aqi.setText(weather.aqi.city.aqi);
+            pm25.setText(weather.aqi.city.pm25);
+        }
+        if(weather.suggestion != null) {
+            String comforStr = "舒适度：" + weather.suggestion.comf.txt;
+            String carStr = "汽车指数：" + weather.suggestion.cw.txt;
+            String sprotStr = "运动建议：" + weather.suggestion.sport.txt;
+            comf.setText(comforStr);
+            car.setText(carStr);
+            sport.setText(sprotStr);
         }
     }
 }

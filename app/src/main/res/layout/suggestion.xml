@@ -15,16 +15,19 @@
         android:layout_marginTop="15dp"
         android:layout_marginLeft="15dp"/>
     <TextView
+        android:id="@+id/comf_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#fff"
         android:layout_margin="15dp"/>
     <TextView
+        android:id="@+id/car_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#fff"
         android:layout_margin="15dp"/>
     <TextView
+        android:id="@+id/sport_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="#fff"
