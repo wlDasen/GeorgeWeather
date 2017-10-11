@@ -8,9 +8,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
 
 import net.sunniwell.georgeweather.db.City;
 import net.sunniwell.georgeweather.gson.Basic;
@@ -40,6 +43,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView comf;
     private TextView car;
     private TextView sport;
+    private ImageView bingPicImg;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +54,15 @@ public class WeatherActivity extends AppCompatActivity {
         Intent intent = getIntent();
         String weatherId = intent.getStringExtra("weather_id");
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        String bingPic = prefs.getString("bing_pic", null);
+        if (bingPic != null) {
+            Log.d(TAG, "onCreate: bingpic use cache.");
+            Log.d(TAG, "onCreate: bingpic bingPic:" + bingPic);
+            Glide.with(this).load(bingPic).into(bingPicImg);
+        } else {
+            Log.d(TAG, "onCreate: bingpic by internet.");
+            loadBingPic();
+        }
         String weatherString = prefs.getString("weather", null);
         if (weatherString != null) {
             Log.d(TAG, "onCreate: use cache.....");
@@ -59,6 +72,33 @@ public class WeatherActivity extends AppCompatActivity {
             Log.d(TAG, "onCreate: by internet...");
             requestWeather(weatherId);
         }
+    }
+
+    private void loadBingPic() {
+        Log.d(TAG, "loadBingPic: ");
+        String url = "http://guolin.tech/api/bing_pic";
+        HttpUtil.sendRequest(url, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d(TAG, "onFailure: ");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.d(TAG, "onResponse: ");
+                final String responseStr = response.body().string();
+                Log.d(TAG, "onResponse: response:" + responseStr);
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+                editor.putString("bing_pic", responseStr);
+                editor.apply();
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Glide.with(WeatherActivity.this).load(responseStr).into(bingPicImg);
+                    }
+                });
+            }
+        });
     }
 
     private void obtainWidgetInstance() {
@@ -72,6 +112,7 @@ public class WeatherActivity extends AppCompatActivity {
         comf = (TextView)findViewById(R.id.comf_text);
         car = (TextView)findViewById(R.id.car_text);
         sport = (TextView)findViewById(R.id.sport_text);
+        bingPicImg = (ImageView)findViewById(R.id.bing_pic);
     }
 
     @Override

@@ -21,13 +21,13 @@ public class Utility {
 
     public static Weather handleWeatherResponse(String response) {
         try {
-            Log.d(TAG, "handleWeatherResponse: response:" + response);
+//            Log.d(TAG, "handleWeatherResponse: response:" + response);
             JSONObject jsonObject = new JSONObject(response);
-            Log.d(TAG, "handleWeatherResponse: length:" + jsonObject.length());
+//            Log.d(TAG, "handleWeatherResponse: length:" + jsonObject.length());
             JSONArray jsonArray = jsonObject.getJSONArray("HeWeather5");
-            Log.d(TAG, "handleWeatherResponse: " + jsonArray.length());
+//            Log.d(TAG, "handleWeatherResponse: " + jsonArray.length());
             String weatherContent = jsonArray.getJSONObject(0).toString();
-            Log.d(TAG, "handleWeatherResponse: " + weatherContent);
+//            Log.d(TAG, "handleWeatherResponse: " + weatherContent);
             return new Gson().fromJson(weatherContent, Weather.class);
         } catch (Exception e) {
             e.printStackTrace();
