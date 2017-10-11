@@ -26,6 +26,7 @@ import net.sunniwell.georgeweather.db.City;
 import net.sunniwell.georgeweather.gson.Basic;
 import net.sunniwell.georgeweather.gson.DailyForecast;
 import net.sunniwell.georgeweather.gson.Weather;
+import net.sunniwell.georgeweather.service.AutoUpdateService;
 import net.sunniwell.georgeweather.util.HttpUtil;
 import net.sunniwell.georgeweather.util.Utility;
 
@@ -165,6 +166,8 @@ public class WeatherActivity extends AppCompatActivity {
                             Log.d(TAG, "run: responseContent:" + responseContent);
                             editor.apply();
                             showWeatherInfo(weather);
+                            Intent intent = new Intent(WeatherActivity.this, AutoUpdateService.class);
+                            startService(intent);
                         } else {
                             Toast.makeText(WeatherActivity.this, "获取天气失败", Toast.LENGTH_SHORT).show();
                         }
