@@ -76,27 +76,14 @@ public class WeatherActivity extends AppCompatActivity {
 
     private void loadBingPic() {
         Log.d(TAG, "loadBingPic: ");
-        String url = "http://guolin.tech/api/bing_pic";
-        HttpUtil.sendRequest(url, new Callback() {
+        final String url = "http://cn.bing.com/az/hprichbg/rb/SoyuzReturn_ROW9920762589_1920x1080.jpg";
+        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
+        editor.putString("bing_pic", url);
+        editor.apply();
+        runOnUiThread(new Runnable() {
             @Override
-            public void onFailure(Call call, IOException e) {
-                Log.d(TAG, "onFailure: ");
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                Log.d(TAG, "onResponse: ");
-                final String responseStr = response.body().string();
-                Log.d(TAG, "onResponse: response:" + responseStr);
-                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(WeatherActivity.this).edit();
-                editor.putString("bing_pic", responseStr);
-                editor.apply();
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Glide.with(WeatherActivity.this).load(responseStr).into(bingPicImg);
-                    }
-                });
+            public void run() {
+                Glide.with(WeatherActivity.this).load(url).into(bingPicImg);
             }
         });
     }
