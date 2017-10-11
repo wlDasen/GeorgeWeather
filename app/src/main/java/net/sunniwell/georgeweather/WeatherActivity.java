@@ -2,7 +2,10 @@ package net.sunniwell.georgeweather;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
+import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -44,6 +47,7 @@ public class WeatherActivity extends AppCompatActivity {
     private TextView car;
     private TextView sport;
     private ImageView bingPicImg;
+    private SwipeRefreshLayout swipe;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,8 +55,7 @@ public class WeatherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_weather);
         obtainWidgetInstance();
-        Intent intent = getIntent();
-        String weatherId = intent.getStringExtra("weather_id");
+        final String weatherId;
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         String bingPic = prefs.getString("bing_pic", null);
         if (bingPic != null) {
@@ -67,11 +70,20 @@ public class WeatherActivity extends AppCompatActivity {
         if (weatherString != null) {
             Log.d(TAG, "onCreate: use cache.....");
             Weather weather = Utility.handleWeatherResponse(weatherString);
+            weatherId = weather.basic.city;
             showWeatherInfo(weather);
         } else {
             Log.d(TAG, "onCreate: by internet...");
+            Intent intent = getIntent();
+            weatherId = intent.getStringExtra("weather_id");
             requestWeather(weatherId);
         }
+        swipe.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                requestWeather(weatherId);
+            }
+        });
     }
 
     private void loadBingPic() {
@@ -100,6 +112,7 @@ public class WeatherActivity extends AppCompatActivity {
         car = (TextView)findViewById(R.id.car_text);
         sport = (TextView)findViewById(R.id.sport_text);
         bingPicImg = (ImageView)findViewById(R.id.bing_pic);
+        swipe = (SwipeRefreshLayout)findViewById(R.id.swipe_refresh);
     }
 
     @Override
@@ -118,6 +131,7 @@ public class WeatherActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         Toast.makeText(WeatherActivity.this, "获取天气失败", Toast.LENGTH_SHORT).show();
+                        swipe.setRefreshing(false);
                     }
                 });
             }
@@ -140,10 +154,12 @@ public class WeatherActivity extends AppCompatActivity {
                         } else {
                             Toast.makeText(WeatherActivity.this, "获取天气失败", Toast.LENGTH_SHORT).show();
                         }
+                        swipe.setRefreshing(false);
                     }
                 });
             }
         });
+        loadBingPic();
     }
 
     private void showWeatherInfo(Weather weather) {
